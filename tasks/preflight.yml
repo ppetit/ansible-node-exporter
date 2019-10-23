@@ -72,9 +72,12 @@
   set_fact:
     _checksums: "{{ lookup('url', node_exporter_download_url + node_exporter_version + '/sha256sums.txt', wantlist=True) | list }}"
   run_once: true
+  when: node_exporter_checksum is not defined
 
 - name: "Get checksum for {{ go_arch }} architecture"
   set_fact:
     node_exporter_checksum: "{{ item.split(' ')[0] }}"
   with_items: "{{ _checksums }}"
-  when: "('linux-' + go_arch + '.tar.gz') in item"
+  when:
+    - node_exporter_checksum is not defined
+    - "('linux-' + go_arch + '.tar.gz') in item"
